@@ -26,9 +26,7 @@ describe Oystercard do
     expect(subject.in_journey?).to eq true
   end
 
-  it "has not been touched in" do
-    expect(subject.touch_in)
-  end
+
 
 
 end
