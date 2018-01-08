@@ -3,58 +3,52 @@ require 'oystercard'
 MAX_AMOUNT = 90
 
 describe Oystercard do
+  subject(:oystercard) { described_class.new }
   it { is_expected.to respond_to :balance }
 
-  it "has a balance of 0" do
-    expect(subject.balance).to eq 0
+  describe 'Balance' do
+    it "has a balance of 0" do
+      expect(oystercard.balance).to eq 0
+    end
+
+    it "tops up the oystercard" do
+      expect(oystercard.top_up(10)).to eq 10
+    end
+
+    it "to raise an error if top up amount is greater than 90" do
+      expect {oystercard.top_up(100)}.to raise_error "the oystercard cannot store above #{MAX_AMOUNT}"
+    end
+
+    it "to deduct money from oystercard" do
+      oystercard.top_up(30)
+      expect(oystercard.deduct(10)).to eq 20
+    end
   end
 
-  it "tops up the oystercard" do
-    expect(subject.top_up(10)).to eq 10
+  describe 'Touching in' do
+    it 'touching in changes status to true' do
+      oystercard.touch_in
+      expect(oystercard.in_journey?).to eq true
+    end
+
+    it 'touching in twice will raise an error' do
+        oystercard.touch_in
+        expect {oystercard.touch_in}.to raise_error "you have already touched in"
+      end
+    end
+    describe 'Touching out' do
+      it 'card can be used to touch out' do
+          oystercard.touch_in
+          oystercard.touch_out
+          expect(oystercard).not_to be_in_journey
+        end
+
+      it 'touch out fails without touching in' do
+        expect {oystercard.touch_out}.to raise_error "you are not touched in"
+        end
+
+    it 'Card is not in a journey by default' do
+      expect(oystercard.in_journey?).to eq false
+    end
   end
-
-  it "to raise an error if top up amount is greater than 90" do
-    expect {subject.top_up(100)}.to raise_error "the oystercard cannot store above #{MAX_AMOUNT}"
-  end
-
-  it "to deduct money from oystercard" do
-    subject.top_up(30)
-    expect(subject.deduct(10)).to eq 20
-  end
-
-  it 'touching in changes status to true' do
-    subject.touch_in
-    expect(subject.in_journey?).to eq true
-  end
-
-  it 'touching in twice will raise an error' do
-      subject.touch_in
-      expect {subject.touch_in}.to raise_error "you have already touched in"
-  end
-
-  it 'touching out twice and also if it is not in use' do
-      expect {subject.touch_out}.to raise_error "you have already touched out"
-  end
-
-  it 'when status is true, touch_out sets status to false' do
-    subject.touch_in
-    subject.touch_out
-    expect(subject.in_journey?).to eq false
-  end
-
-
-
-
-
-  # it 'is currently in a journey' do
-  #   expect(subject.in_journey?).to eq true
-  # end
-  #
-  # it 'touching in sets the status to in use' do
-  #   expect { subject.touch_in }.to change { subject.}.from('not in use').to('in use')
-  # end
-
-
-
-
 end
