@@ -22,9 +22,28 @@ describe Oystercard do
     expect(subject.deduct(10)).to eq 20
   end
 
-  it 'is currently in a journey' do
+  it 'touching in changes status to true' do
+    subject.touch_in
     expect(subject.in_journey?).to eq true
   end
+
+  it 'when status is true, touch_out sets status to false' do
+    subject.touch_in
+    subject.touch_out
+    expect(subject.in_journey?).to eq false
+  end
+
+
+
+
+
+  # it 'is currently in a journey' do
+  #   expect(subject.in_journey?).to eq true
+  # end
+  #
+  # it 'touching in sets the status to in use' do
+  #   expect { subject.touch_in }.to change { subject.}.from('not in use').to('in use')
+  # end
 
 
 
