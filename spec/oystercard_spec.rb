@@ -17,7 +17,7 @@ describe Oystercard do
     end
 
     it "to raise an error if top up amount is greater than 90" do
-      expect {oystercard.top_up(100)}.to raise_error "the oystercard cannot store above #{MAX_AMOUNT}"
+      expect {oystercard.top_up(100)}.to raise_error "There is a limit of #{MAX_AMOUNT}"
     end
   end
 

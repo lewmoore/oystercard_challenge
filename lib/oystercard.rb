@@ -1,5 +1,5 @@
+# Oystercard
 class Oystercard
-
   attr_reader :balance, :status
 
   MAX_AMOUNT = 90
