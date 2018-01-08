@@ -10,7 +10,8 @@ describe Oystercard do
     it "has a balance of 0" do
       expect(oystercard.balance).to eq 0
     end
-
+  end
+  describe '#top_up' do
     it "tops up the oystercard" do
       expect(oystercard.top_up(10)).to eq 10
     end
@@ -18,14 +19,16 @@ describe Oystercard do
     it "to raise an error if top up amount is greater than 90" do
       expect {oystercard.top_up(100)}.to raise_error "the oystercard cannot store above #{MAX_AMOUNT}"
     end
+  end
 
+  describe '#top_up' do
     it "to deduct money from oystercard" do
       oystercard.top_up(30)
       expect(oystercard.deduct(10)).to eq 20
     end
   end
 
-  describe 'Touching in' do
+  describe '#touch_in' do
     it 'touching in changes status to true' do
       oystercard.touch_in
       expect(oystercard.in_journey?).to eq true
@@ -36,7 +39,7 @@ describe Oystercard do
         expect {oystercard.touch_in}.to raise_error "you have already touched in"
       end
     end
-    describe 'Touching out' do
+    describe '#touch_out' do
       it 'card can be used to touch out' do
           oystercard.touch_in
           oystercard.touch_out
