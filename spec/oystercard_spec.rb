@@ -27,6 +27,15 @@ describe Oystercard do
     expect(subject.in_journey?).to eq true
   end
 
+  it 'touching in twice will raise an error' do
+      subject.touch_in
+      expect {subject.touch_in}.to raise_error "you have already touched in"
+  end
+
+  it 'touching out twice and also if it is not in use' do
+      expect {subject.touch_out}.to raise_error "you have already touched out"
+  end
+
   it 'when status is true, touch_out sets status to false' do
     subject.touch_in
     subject.touch_out

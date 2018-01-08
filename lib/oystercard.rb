@@ -23,10 +23,12 @@ class Oystercard
   end
 
   def touch_in
+    raise "you have already touched in" if @status == true
     @status = true
   end
 
   def touch_out
+    raise "you have already touched out" if @status == false
     @status = false
   end
 end
