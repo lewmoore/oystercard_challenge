@@ -39,6 +39,7 @@ describe Oystercard do
         expect {oystercard.touch_in}.to raise_error "you have already touched in"
       end
     end
+
     describe '#touch_out' do
       it 'card can be used to touch out' do
           oystercard.touch_in
