@@ -5,13 +5,29 @@ MAX_AMOUNT = 90
 
 describe Oystercard do
   subject(:oystercard) { described_class.new }
-  let(:station) { double :station }
+  let(:entry_station) { double :station }
+  let(:exit_station) { double :station }
+  let(:journey){ {entry_station: entry_station, exit_station: exit_station} }
 
   describe 'Balance' do
     it "has a balance of 0" do
       expect(oystercard.balance).to eq 0
     end
   end
+
+  describe 'journey history' do
+    it "has an empty journey history at start" do
+      expect(oystercard.journey_history).to be_empty
+    end
+
+    it "stores entry station and exit station" do
+      oystercard.top_up(30)
+      oystercard.touch_in(entry_station)
+      oystercard.touch_out(exit_station)
+      expect(oystercard.journey_history[:entry_station]).to eq :exit_station
+    end
+  end
+
   describe '#top_up' do
     it "tops up the oystercard" do
       expect(oystercard.top_up(10)).to eq 10
@@ -26,7 +42,7 @@ describe Oystercard do
     context 'sufficient balance' do
       before do
         oystercard.top_up(30)
-        oystercard.touch_in(station)
+        oystercard.touch_in(entry_station)
       end
 
       it { is_expected.to respond_to(:touch_in).with(1).argument }
@@ -36,17 +52,17 @@ describe Oystercard do
         end
 
         it 'touching in twice will raise an error' do
-            expect {oystercard.touch_in(station)}.to raise_error "you have already touched in"
+            expect {oystercard.touch_in(entry_station)}.to raise_error "you have already touched in"
           end
 
         it 'Can identify previous entry station' do
-          expect(oystercard.entry_station).to eq station
+          expect(oystercard.entry_station).to eq entry_station
           end
         end
 
       context 'insufficient balance' do
         it 'if balance is below the minimum fare, card wont touch in' do
-          expect {oystercard.touch_in(station)}.to raise_error "you dont have enough money"
+          expect {oystercard.touch_in(entry_station)}.to raise_error "you dont have enough money"
         end
       end
     end
@@ -55,26 +71,31 @@ describe Oystercard do
       context 'sufficient balance' do
         before do
           oystercard.top_up(30)
-          oystercard.touch_in(station)
+          oystercard.touch_in(entry_station)
+          oystercard.touch_out(exit_station)
         end
 
           it 'card can be used to touch out' do
-              oystercard.touch_out
               expect(oystercard).not_to be_in_journey
             end
           it 'sets entry station to nil when touching out' do
-            oystercard.touch_out
             expect(oystercard.entry_station).to eq nil
           end
 
-          it 'is expected to deduct fare when touching out' do
-            expect { oystercard.touch_out }.to change { oystercard.balance }.by (-Oystercard::MINIMUM_FARE)
+          it 'stores exit station' do
+            expect(oystercard.exit_station).to eq exit_station
           end
 
-        end
+      end
+
+      it 'is expected to deduct fare when touching out' do
+        oystercard.top_up(30)
+        oystercard.touch_in(entry_station)
+        expect { oystercard.touch_out(exit_station) }.to change { oystercard.balance }.by (-Oystercard::MINIMUM_FARE)
+      end
 
       it 'touch out fails without touching in' do
-        expect {oystercard.touch_out}.to raise_error "you are not touched in"
+        expect {oystercard.touch_out(exit_station)}.to raise_error "you are not touched in"
       end
 
       it 'Card is not in a journey by default' do

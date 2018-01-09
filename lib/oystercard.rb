@@ -3,13 +3,14 @@
 require_relative 'station.rb'
 
 class Oystercard
-  attr_reader :balance, :entry_station
+  attr_reader :balance, :entry_station, :journey_history, :exit_station
 
   MAX_AMOUNT = 90
   MINIMUM_FARE = 1
 
   def initialize
     @balance = 0
+    @journey_history = {}
   end
 
   def top_up(amount)
@@ -27,9 +28,11 @@ class Oystercard
     @entry_station = station
   end
 
-  def touch_out
+  def touch_out(station)
     raise "you are not touched in" unless in_journey?
     deduct(MINIMUM_FARE)
+    @exit_station = station
+    @journey_history[:entry_station] = :exit_station
     @entry_station = nil
   end
 
