@@ -24,7 +24,7 @@ describe Oystercard do
       oystercard.top_up(30)
       oystercard.touch_in(entry_station)
       oystercard.touch_out(exit_station)
-      expect(oystercard.journey_history[:entry_station]).to eq :exit_station
+      expect(oystercard.journey_history).to eq [journey]
     end
   end
 
@@ -52,13 +52,13 @@ describe Oystercard do
         end
 
         it 'touching in twice will raise an error' do
-            expect {oystercard.touch_in(entry_station)}.to raise_error "you have already touched in"
+          expect {oystercard.touch_in(entry_station)}.to raise_error "you have already touched in"
           end
 
         it 'Can identify previous entry station' do
           expect(oystercard.entry_station).to eq entry_station
-          end
         end
+      end
 
       context 'insufficient balance' do
         it 'if balance is below the minimum fare, card wont touch in' do

@@ -10,7 +10,7 @@ class Oystercard
 
   def initialize
     @balance = 0
-    @journey_history = {}
+    @journey_history = []
   end
 
   def top_up(amount)
@@ -32,8 +32,12 @@ class Oystercard
     raise "you are not touched in" unless in_journey?
     deduct(MINIMUM_FARE)
     @exit_station = station
-    @journey_history[:entry_station] = :exit_station
+    add_journey_to_history
     @entry_station = nil
+  end
+
+  def add_journey_to_history
+    @journey_history << {entry_station: @entry_station, exit_station: @exit_station}
   end
 
   private

@@ -1,7 +1,7 @@
 class Station
 
-    def entry_station
-
-    end
+  def zone
+    1
+  end
 
 end
