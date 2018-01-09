@@ -29,19 +29,31 @@ describe Oystercard do
   end
 
   describe '#touch_in' do
-    it 'touching in changes status to true' do
-      oystercard.touch_in
-      expect(oystercard.in_journey?).to eq true
-    end
-
-    it 'touching in twice will raise an error' do
+    context 'sufficient balance' do
+      before do
+        oystercard.top_up(30)
         oystercard.touch_in
-        expect {oystercard.touch_in}.to raise_error "you have already touched in"
+      end
+
+        it 'touching in changes status to true' do
+          expect(oystercard.in_journey?).to eq true
+        end
+
+        it 'touching in twice will raise an error' do
+            expect {oystercard.touch_in}.to raise_error "you have already touched in"
+          end
+        end
+
+      context 'insufficient balance' do
+        it 'if balance is below the minimum fare, card wont touch in' do
+          expect {oystercard.touch_in}.to raise_error "you dont have enough money"
+        end
       end
     end
 
     describe '#touch_out' do
       it 'card can be used to touch out' do
+          oystercard.top_up(30)
           oystercard.touch_in
           oystercard.touch_out
           expect(oystercard).not_to be_in_journey
