@@ -1,9 +1,11 @@
 require 'oystercard'
 
+
 MAX_AMOUNT = 90
 
 describe Oystercard do
   subject(:oystercard) { described_class.new }
+  let(:station) { double :station }
 
   describe 'Balance' do
     it "has a balance of 0" do
@@ -24,21 +26,27 @@ describe Oystercard do
     context 'sufficient balance' do
       before do
         oystercard.top_up(30)
-        oystercard.touch_in
+        oystercard.touch_in(station)
       end
+
+      it { is_expected.to respond_to(:touch_in).with(1).argument }
 
         it 'touching in changes status to true' do
           expect(oystercard.in_journey?).to eq true
         end
 
         it 'touching in twice will raise an error' do
-            expect {oystercard.touch_in}.to raise_error "you have already touched in"
+            expect {oystercard.touch_in(station)}.to raise_error "you have already touched in"
+          end
+
+        it 'Can identify previous entry station' do
+          expect(oystercard.entry_station).to eq station
           end
         end
 
       context 'insufficient balance' do
         it 'if balance is below the minimum fare, card wont touch in' do
-          expect {oystercard.touch_in}.to raise_error "you dont have enough money"
+          expect {oystercard.touch_in(station)}.to raise_error "you dont have enough money"
         end
       end
     end
@@ -47,12 +55,17 @@ describe Oystercard do
       context 'sufficient balance' do
         before do
           oystercard.top_up(30)
-          oystercard.touch_in
+          oystercard.touch_in(station)
         end
+
           it 'card can be used to touch out' do
               oystercard.touch_out
               expect(oystercard).not_to be_in_journey
             end
+          it 'sets entry station to nil when touching out' do
+            oystercard.touch_out
+            expect(oystercard.entry_station).to eq nil
+          end
 
           it 'is expected to deduct fare when touching out' do
             expect { oystercard.touch_out }.to change { oystercard.balance }.by (-Oystercard::MINIMUM_FARE)
