@@ -1,48 +1,57 @@
 # Oystercard
 
 require_relative 'station.rb'
+require_relative 'journey.rb'
+
 
 class Oystercard
-  attr_reader :balance, :entry_station, :journey_history, :exit_station
+  attr_reader :balance, :entry_station, :journey_history
 
   MAX_AMOUNT = 90
   MINIMUM_FARE = 1
 
-  def initialize
+  def initialize (journey_class = Journey)
     @balance = 0
+    @journey_class = journey_class
     @journey_history = []
   end
 
   def top_up(amount)
-    raise "There is a limit of #{MAX_AMOUNT}" if amount > MAX_AMOUNT
+    raise "There is a limit of #{MAX_AMOUNT}" if limit_exceeded?(amount)
     @balance += amount
   end
 
   def in_journey?
-    !!entry_station
+    !!@journey
   end
 
   def touch_in(station)
-    raise "you have already touched in" if in_journey?
-    raise "you dont have enough money" if @balance < MINIMUM_FARE
-    @entry_station = station
+    raise "you dont have enough money" if low_balance?
+    @journey = @journey_class.new(station)
   end
 
-  def touch_out(station)
-    raise "you are not touched in" unless in_journey?
+  def touch_out(station, journey = @journey)
     deduct(MINIMUM_FARE)
-    @exit_station = station
-    add_journey_to_history
-    @entry_station = nil
+    journey.complete_journey(station)
+    add_journey_history
   end
 
-  def add_journey_to_history
-    @journey_history << {entry_station: @entry_station, exit_station: @exit_station}
-  end
 
   private
+
+  def add_journey_history
+    @journey_history << @journey
+  end
+
   def deduct(amount)
     @balance -= amount
   end
 
+  def limit_exceeded?(amount)
+    amount > MAX_AMOUNT
+  end
+
+  def low_balance?
+    @balance < MINIMUM_FARE
+  end
 end
