@@ -9,6 +9,8 @@ describe Oystercard do
   let(:exit_station) { double :exit_station }
   let(:journey_class) { double :journey_class, new: nil }
   let(:journey) { double :journey }
+  let(:journey_log) { double :journey_log, start: nil, finish: nil }
+  let(:journey_log_class) { double :journey_log_class, new: nil }
   subject(:oystercard) { described_class.new(journey_class) }
 
   describe '#initialize' do
@@ -16,9 +18,11 @@ describe Oystercard do
       expect(oystercard.balance).to eq 0
     end
 
-    it "has an empty journey history at start" do
-      expect(oystercard.journey_history).to eq []
+    it 'creates a journey log' do
+      expect(journey_log_class).to receive(:new)
+      Oystercard.new(journey_class, journey_log_class)
     end
+
   end
 
   describe '#top_up' do
@@ -32,14 +36,11 @@ describe Oystercard do
   end
 
   describe '#touch_in' do
-
-
     context 'sufficient balance' do
-
         it 'creates a new journey' do
-          expect(journey_class).to receive(:new)
           oystercard.top_up(10)
-          oystercard.touch_in(entry_station)
+          allow(journey_log).to receive(:start).and_return journey
+          expect(oystercard.touch_in(entry_station, journey_log)).to eq journey
         end
       end
 
@@ -52,13 +53,9 @@ describe Oystercard do
 
     describe '#touch_out' do
 
-          it 'card can be used to touch out' do
-            allow(journey).to receive(:in_journey?).and_return false
-            expect(oystercard.in_journey?).to eq false
-            end
-          it 'sets entry station to nil when touching out' do
-            expect(oystercard.entry_station).to eq nil
-          end
+    it 'sets entry station to nil when touching out' do
+        expect(oystercard.entry_station).to eq nil
+      end
 
       it 'is expected to deduct fare when touching out' do
         oystercard.top_up(30)
@@ -66,5 +63,5 @@ describe Oystercard do
         oystercard.touch_in(entry_station)
         expect { oystercard.touch_out(exit_station, journey) }.to change { oystercard.balance }.by (-Oystercard::MINIMUM_FARE)
       end
-  end
+    end
 end
